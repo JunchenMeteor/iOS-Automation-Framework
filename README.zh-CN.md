@@ -223,9 +223,11 @@ locust -f locustfile.py --host=https://api-dev.yunlu.com
 示例：
 
 ```bash
-python -m pytest API_Automation/cases -v --alluredir=Reports/platform/local-demo-001/allure-results
+python -m pytest API_Automation/cases -v -n 0 --alluredir=Reports/platform/local-demo-001/allure-results
 python -m pytest UI_Automation/Tests -v -n 0 --alluredir=Reports/platform/local-demo-001/allure-results
 ```
+
+平台触发的 API suites 使用 `-n 0` 串行运行。项目级 `pytest.ini` 为普通本地运行启用了 `pytest-xdist` 的 `-n auto`，但串行执行对 Windows Local Agent 更稳定，可以避免临时目录权限失败。
 
 平台触发运行建议统一写入：
 
@@ -238,6 +240,16 @@ Reports/platform/{task_id}/
 ```
 
 被测 `.ipa` 或 `.app` 应由平台任务以 `app_path` 或 `app_url` 传入。本仓库不负责构建 App，也不负责通用任务调度。
+
+API smoke suites 需要通过 `API_BASE_URL` 指向目标服务。如果没有设置该变量，API 集成测试会正常收集，但会被有意跳过。设置后，它会覆盖 `config/environments.yaml` 里的 `api.base_url`：
+
+```powershell
+$env:TEST_ENV="staging"
+$env:API_BASE_URL="https://your-staging-api.example.com"
+.venv\Scripts\python.exe -m pytest API_Automation\cases -v -n 0 -m smoke
+```
+
+如果通过 MeteorTest Local Agent 运行，需要在启动 Agent 的同一个 shell 中设置 `API_BASE_URL`，这样 suite 子进程才能继承这个变量。
 
 ## 本地 Demo 控制台
 

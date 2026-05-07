@@ -34,7 +34,7 @@ def env_config():
 @pytest.fixture(scope="session")
 def api_base_url(env_config):
     """API 基础 URL"""
-    return env_config["api"]["base_url"]
+    return os.getenv("API_BASE_URL") or env_config["api"]["base_url"]
 
 
 @pytest.fixture(scope="session")
@@ -153,7 +153,7 @@ def allure_environment(env_config):
     env_properties = {
         "Python版本": sys.version.split()[0],
         "测试环境": env_config.get("name", "dev"),
-        "API地址": env_config.get("api", {}).get("base_url", ""),
+        "API地址": os.getenv("API_BASE_URL") or env_config.get("api", {}).get("base_url", ""),
         "生成时间": datetime.now().strftime("%Y-%m-%d %H:%M:%S"),
         "测试框架": "pytest + Appium + Allure",
     }

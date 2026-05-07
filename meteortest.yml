@@ -39,7 +39,7 @@ suites:
   - id: api_smoke
     name: API smoke tests
     type: api
-    command: python -m pytest API_Automation/cases -v -m smoke --alluredir=Reports/platform/{task_id}/allure-results
+    command: python -m pytest API_Automation/cases -v -n 0 -m smoke --alluredir=Reports/platform/{task_id}/allure-results
     report:
       allure: true
     outputs:
@@ -48,7 +48,7 @@ suites:
   - id: api_all
     name: API full regression
     type: api
-    command: python -m pytest API_Automation/cases -v --alluredir=Reports/platform/{task_id}/allure-results
+    command: python -m pytest API_Automation/cases -v -n 0 --alluredir=Reports/platform/{task_id}/allure-results
     report:
       allure: true
     outputs:

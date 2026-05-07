@@ -223,9 +223,11 @@ A platform or Local Agent should read `meteortest.yml` at the repository root, s
 Example:
 
 ```bash
-python -m pytest API_Automation/cases -v --alluredir=Reports/platform/local-demo-001/allure-results
+python -m pytest API_Automation/cases -v -n 0 --alluredir=Reports/platform/local-demo-001/allure-results
 python -m pytest UI_Automation/Tests -v -n 0 --alluredir=Reports/platform/local-demo-001/allure-results
 ```
+
+Platform-triggered API suites use `-n 0` to run serially. The project-level `pytest.ini` enables `pytest-xdist` with `-n auto` for normal local runs, but serial execution is more stable for Windows Local Agent runs and avoids temporary-directory permission failures.
 
 Platform-triggered runs should write artifacts under:
 
@@ -238,6 +240,16 @@ Reports/platform/{task_id}/
 ```
 
 The tested `.ipa` or `.app` should be passed by the platform task as `app_path` or `app_url`. This repository does not build the app and does not own general-purpose task scheduling.
+
+API smoke suites require `API_BASE_URL` to point to the target service. Without it, the API integration tests are collected successfully but skipped intentionally. When it is set, it overrides the `api.base_url` value from `config/environments.yaml`:
+
+```powershell
+$env:TEST_ENV="staging"
+$env:API_BASE_URL="https://your-staging-api.example.com"
+.venv\Scripts\python.exe -m pytest API_Automation\cases -v -n 0 -m smoke
+```
+
+For MeteorTest Local Agent runs, set `API_BASE_URL` in the same shell before starting the Agent so the suite subprocess inherits it.
 
 ## Local Demo Console
 
