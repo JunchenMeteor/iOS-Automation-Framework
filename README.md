@@ -251,6 +251,25 @@ $env:API_BASE_URL="https://your-staging-api.example.com"
 
 For MeteorTest Local Agent runs, set `API_BASE_URL` in the same shell before starting the Agent so the suite subprocess inherits it.
 
+### Local mock API for smoke evidence
+
+For public-safe local validation, this repository includes a small mock API that covers the current `-m smoke` API cases. It lets the smoke suite produce real pass/fail results without depending on a private staging backend.
+
+Start the mock API:
+
+```powershell
+.venv\Scripts\python.exe -m tools.mock_api.server --host 127.0.0.1 --port 8010
+```
+
+In another shell, run the smoke suite against it:
+
+```powershell
+$env:API_BASE_URL="http://127.0.0.1:8010"
+.venv\Scripts\python.exe -m pytest API_Automation\cases -v -n 0 -m smoke
+```
+
+Boundary: the mock API is deterministic local test infrastructure. It is not the real product backend and should not be used to claim production API coverage.
+
 ## Local Demo Console
 
 The repository includes a local Web UI for debugging and demonstration. It is useful for browsing code, running whitelisted tests, viewing real-time logs, opening Allure reports, and trying project-aware AI Q&A.

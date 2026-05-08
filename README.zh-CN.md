@@ -251,6 +251,25 @@ $env:API_BASE_URL="https://your-staging-api.example.com"
 
 如果通过 MeteorTest Local Agent 运行，需要在启动 Agent 的同一个 shell 中设置 `API_BASE_URL`，这样 suite 子进程才能继承这个变量。
 
+### 用于 smoke 证据的本地 Mock API
+
+为了做公开安全的本地验证，本仓库内置了一个小型 mock API，覆盖当前 `-m smoke` API 用例需要的接口。它可以让 smoke suite 产生真实的 pass/fail 结果，而不依赖私有 staging 后端。
+
+启动 mock API：
+
+```powershell
+.venv\Scripts\python.exe -m tools.mock_api.server --host 127.0.0.1 --port 8010
+```
+
+另开一个 shell，把 smoke suite 指向它：
+
+```powershell
+$env:API_BASE_URL="http://127.0.0.1:8010"
+.venv\Scripts\python.exe -m pytest API_Automation\cases -v -n 0 -m smoke
+```
+
+边界：mock API 是确定性的本地测试基础设施。它不是被测产品的真实后端，不能用来宣称已经覆盖生产 API。
+
 ## 本地 Demo 控制台
 
 仓库内置一个本地 Web UI，用于调试和演示。它可以浏览代码、执行白名单内测试、查看实时日志、打开 Allure 报告，并尝试项目上下文 AI 问答。
